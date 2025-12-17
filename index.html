@@ -1,225 +1,257 @@
 <!DOCTYPE html>
 <html lang="bg">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Barber Pro Ultimate - Cloud ERP</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        :root { 
-            --primary: #1e1e2d; 
-            --accent: #00a3ff; 
-            --gold: #d4af37; 
-            --bg: #14141f; 
-            --card-bg: #1e1e2d;
-            --text: #ffffff;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barber Pro Ultimate – POS</title>
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-        body { 
-            background: var(--bg); 
-            color: var(--text);
-            min-height: 100vh;
-            padding: 10px;
-        }
+  <style>
+    :root{
+      --bg:#0f1220;
+      --card:#1c1f35;
+      --gold:#d4af37;
+      --accent:#00a3ff;
+      --danger:#ff4b4b;
+      --text:#ffffff;
+    }
 
-        .app-container { width: 100%; max-width: 500px; margin: 0 auto; }
+    *{box-sizing:border-box;font-family:Segoe UI,Roboto,sans-serif}
 
-        /* Вход */
-        .login-box {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin-top: 50px;
-        }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      display:flex;
+      justify-content:center;
+    }
 
-        input {
-            width: 100%;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 10px;
-            border: 1px solid #3d3d4f;
-            background: #14141f;
-            color: white;
-            font-size: 18px;
-            text-align: center;
-        }
+    .app{
+      width:100%;
+      max-width:500px;
+      padding:12px;
+    }
 
-        /* Хедър и Меню */
-        .header { text-align: center; padding-bottom: 20px; border-bottom: 1px solid #2d2d3f; margin-bottom: 20px; }
-        .header h1 { color: var(--gold); font-size: 26px; letter-spacing: 1px; }
-        
-        .nav-menu {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-top: 15px;
-        }
+    .card{
+      background:var(--card);
+      border-radius:18px;
+      padding:18px;
+      margin-bottom:16px;
+      box-shadow:0 6px 20px rgba(0,0,0,.35);
+    }
 
-        .nav-btn {
-            background: #2d2d3f;
-            color: #fff;
-            border: 1px solid #3d3d4f;
-            padding: 12px 5px;
-            border-radius: 10px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .nav-btn i { color: var(--gold); margin-bottom: 5px; display: block; font-size: 16px; }
-        .nav-btn:active { background: var(--accent); }
+    h1{
+      text-align:center;
+      color:var(--gold);
+      margin:10px 0;
+    }
 
-        /* Услуги */
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 20px;
-        }
+    button{
+      border:none;
+      border-radius:14px;
+      padding:14px;
+      font-size:15px;
+      font-weight:600;
+      cursor:pointer;
+    }
 
-        .service-card {
-            background: var(--card-bg);
-            padding: 20px 10px;
-            border-radius: 15px;
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid #2d2d3f;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-        .service-card i { font-size: 24px; color: var(--accent); margin-bottom: 8px; }
-        .service-card p { font-weight: bold; font-size: 15px; margin-bottom: 4px; }
-        .service-card small { color: var(--gold); font-size: 14px; }
+    .btn-main{
+      background:linear-gradient(135deg,var(--accent),#0077cc);
+      color:#fff;
+      width:100%;
+    }
 
-        /* Каса */
-        .checkout-box {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 25px;
-            border-top: 3px solid var(--accent);
-        }
+    input, select{
+      width:100%;
+      padding:14px;
+      border-radius:12px;
+      border:none;
+      font-size:16px;
+      text-align:center;
+    }
 
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+    }
 
-        .btn-finish {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 12px;
-            width: 100%;
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,163,255,0.3);
-        }
+    .service{
+      background:#23264a;
+      border-radius:16px;
+      padding:16px;
+      text-align:center;
+      cursor:pointer;
+    }
 
-        .hidden { display: none; }
-    </style>
+    .service i{
+      font-size:26px;
+      color:var(--accent);
+    }
+
+    .service p{
+      margin:8px 0 2px;
+      font-weight:600;
+    }
+
+    .service small{
+      color:var(--gold);
+    }
+
+    ul{
+      list-style:none;
+      padding:0;
+      margin:0;
+    }
+
+    li{
+      display:flex;
+      justify-content:space-between;
+      padding:6px 0;
+      border-bottom:1px dashed #333;
+    }
+
+    .row{
+      display:flex;
+      justify-content:space-between;
+      font-size:20px;
+      font-weight:700;
+      color:var(--gold);
+    }
+
+    .hidden{display:none}
+  </style>
 </head>
+
 <body>
+<div class="app">
 
-    <div class="app-container">
-        <div id="login-screen" class="login-box">
-            <i class="fas fa-cut" style="font-size: 40px; color: var(--gold); margin-bottom: 10px;"></i>
-            <h2>BARBER PRO</h2>
-            <p style="color: #888; font-size: 14px;">Въведете ПИН за достъп</p>
-            <input type="password" id="pin-input" placeholder="****" inputmode="numeric">
-            <button class="btn-finish" onclick="checkPin()">ВХОД</button>
-        </div>
+  <!-- LOGIN -->
+  <div id="login" class="card">
+    <h1><i class="fas fa-user-shield"></i></h1>
+    <p style="text-align:center">Вход с ПИН</p>
+    <input id="pin" type="password" maxlength="4" placeholder="****">
+    <br><br>
+    <button class="btn-main" onclick="Auth.login()">ВХОД</button>
+  </div>
 
-        <div id="main-panel" class="hidden">
-            <div class="header">
-                <h1>BARBER PRO</h1>
-                <p style="font-size: 14px; color: #888;">Резервации / POS</p>
-                
-                <div class="nav-menu">
-                    <button class="nav-btn" onclick="alert('Модул Резервации')"><i class="fas fa-calendar-plus"></i> Нова Резервация</button>
-                    <button class="nav-btn" onclick="alert('Модул Отчети')"><i class="fas fa-chart-bar"></i> Общи отчети</button>
-                    <button class="nav-btn" onclick="alert('Модул Екип')"><i class="fas fa-users"></i> Екип</button>
-                    <button class="nav-btn" onclick="alert('Модул Услуги')"><i class="fas fa-cog"></i> Услуги</button>
-                </div>
-            </div>
+  <!-- POS -->
+  <div id="pos" class="hidden">
 
-            <div class="services-grid">
-                <div class="service-card" onclick="addService('Подстригване', 20)">
-                    <i class="fas fa-user-tie"></i>
-                    <p>Подстригване</p>
-                    <small>20.00 лв.</small>
-                </div>
-                <div class="service-card" onclick="addService('Брада', 10)">
-                    <i class="fas fa-razor"></i>
-                    <p>Брада</p>
-                    <small>10.00 лв.</small>
-                </div>
-                <div class="service-card" onclick="addService('КОМБО', 25)">
-                    <i class="fas fa-star"></i>
-                    <p>КОМБО</p>
-                    <small>25.00 лв.</small>
-                </div>
-                <div class="service-card" onclick="resetSale()" style="border-color: #ff4b4b;">
-                    <i class="fas fa-trash-alt" style="color: #ff4b4b;"></i>
-                    <p>Нулирай</p>
-                    <small>Изчисти</small>
-                </div>
-            </div>
+    <h1>BARBER PRO</h1>
 
-            <div class="checkout-box">
-                <div class="total-row">
-                    <span>ОБЩО:</span>
-                    <span id="total-amount" style="color: var(--gold);">0.00 лв.</span>
-                </div>
-                <button class="btn-finish" onclick="finishSale()">ФИНАЛИЗИРАЙ</button>
-            </div>
-        </div>
+    <div class="grid">
+      <div class="service" onclick="POS.add('Подстригване',20)">
+        <i class="fas fa-cut"></i>
+        <p>Подстригване</p>
+        <small>20.00 лв</small>
+      </div>
+
+      <div class="service" onclick="POS.add('Брада',10)">
+        <i class="fas fa-user-tie"></i>
+        <p>Брада</p>
+        <small>10.00 лв</small>
+      </div>
+
+      <div class="service" onclick="POS.add('КОМБО',25)">
+        <i class="fas fa-star"></i>
+        <p>КОМБО</p>
+        <small>25.00 лв</small>
+      </div>
+
+      <div class="service" onclick="POS.reset()">
+        <i class="fas fa-trash" style="color:var(--danger)"></i>
+        <p>Нулирай</p>
+        <small>Изчисти</small>
+      </div>
     </div>
 
-    <script>
-        let currentTotal = 0;
-        const correctPin = "1234"; // Твоят ПИН код
+    <div class="card">
+      <h3>Избрани услуги</h3>
+      <ul id="items"></ul>
 
-        // Функция за влизане с Enter
-        document.getElementById('pin-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') { checkPin(); }
-        });
+      <br>
+      <div class="row">
+        <span>ОБЩО</span>
+        <span id="total">0.00 лв</span>
+      </div>
 
-        function checkPin() {
-            const input = document.getElementById('pin-input').value;
-            if(input === correctPin) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-panel').style.display = 'block';
-            } else {
-                alert("Грешен ПИН код!");
-                document.getElementById('pin-input').value = "";
-            }
-        }
+      <br>
+      <select id="payment">
+        <option value="cash">В брой</option>
+        <option value="card">Карта</option>
+      </select>
 
-        function addService(name, price) {
-            currentTotal += price;
-            document.getElementById('total-amount').innerText = currentTotal.toFixed(2) + " лв.";
-        }
+      <br><br>
+      <button class="btn-main" onclick="POS.finish()">ФИНАЛИЗИРАЙ</button>
+    </div>
 
-        function resetSale() {
-            currentTotal = 0;
-            document.getElementById('total-amount').innerText = "0.00 лв.";
-        }
+  </div>
+</div>
 
-        function finishSale() {
-            if(currentTotal === 0) return alert("Изберете услуга!");
-            
-            // Тук данните се изпращат към твоя Firebase проект
-            alert("Продажба за " + currentTotal + " лв. е записана в облака!");
-            resetSale();
-        }
-    </script>
+<script>
+/* ========= AUTH ========= */
+const Auth = {
+  users: {
+    "1234": { name: "Админ" }   // <-- смени ПИН-а тук
+  },
+  login(){
+    const p = pin.value;
+    if(this.users[p]){
+      login.classList.add('hidden');
+      pos.classList.remove('hidden');
+    } else {
+      alert("Грешен ПИН код!");
+    }
+  }
+}
+
+/* ========= POS ========= */
+const POS = {
+  items: [],
+  total: 0,
+
+  add(name, price){
+    this.items.push({name, price});
+    this.total += price;
+    this.render();
+  },
+
+  reset(){
+    this.items = [];
+    this.total = 0;
+    this.render();
+  },
+
+  finish(){
+    if(this.total === 0){
+      alert("Няма избрани услуги!");
+      return;
+    }
+
+    const sales = JSON.parse(localStorage.getItem("sales") || "[]");
+    sales.push({
+      date: new Date().toLocaleString(),
+      items: this.items,
+      total: this.total,
+      payment: payment.value
+    });
+
+    localStorage.setItem("sales", JSON.stringify(sales));
+
+    alert("Продажба " + this.total.toFixed(2) + " лв записана ✔");
+    this.reset();
+  },
+
+  render(){
+    items.innerHTML = this.items
+      .map(i => `<li>${i.name}<span>${i.price.toFixed(2)} лв</span></li>`)
+      .join("");
+    total.innerText = this.total.toFixed(2) + " лв";
+  }
+}
+</script>
+
 </body>
 </html>
