@@ -1,257 +1,1634 @@
 <!DOCTYPE html>
 <html lang="bg">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barber Pro Ultimate – POS</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barber Pro Ultimate - Cloud ERP</title>
+    
+    <!-- External Libraries -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* CSS Variables & Reset */
+        :root {
+            --primary: #1e1e2d;
+            --accent: #00a3ff;
+            --gold: #d4af37;
+            --bg: #f4f6f9;
+            --danger: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --text: #333;
+            --text-light: #a2a3b7;
+            --border: #e0e0e0;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-  <style>
-    :root{
-      --bg:#0f1220;
-      --card:#1c1f35;
-      --gold:#d4af37;
-      --accent:#00a3ff;
-      --danger:#ff4b4b;
-      --text:#ffffff;
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-    *{box-sizing:border-box;font-family:Segoe UI,Roboto,sans-serif}
+        /* Layout Components */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
 
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--text);
-      display:flex;
-      justify-content:center;
-    }
+        /* Login Screen */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary) 0%, #2b2b40 100%);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
 
-    .app{
-      width:100%;
-      max-width:500px;
-      padding:12px;
-    }
+        .login-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
 
-    .card{
-      background:var(--card);
-      border-radius:18px;
-      padding:18px;
-      margin-bottom:16px;
-      box-shadow:0 6px 20px rgba(0,0,0,.35);
-    }
+        .login-icon {
+            font-size: 50px;
+            color: var(--gold);
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
 
-    h1{
-      text-align:center;
-      color:var(--gold);
-      margin:10px 0;
-    }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
 
-    button{
-      border:none;
-      border-radius:14px;
-      padding:14px;
-      font-size:15px;
-      font-weight:600;
-      cursor:pointer;
-    }
+        .login-title {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
 
-    .btn-main{
-      background:linear-gradient(135deg,var(--accent),#0077cc);
-      color:#fff;
-      width:100%;
-    }
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: var(--primary);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: var(--transition);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
 
-    input, select{
-      width:100%;
-      padding:14px;
-      border-radius:12px;
-      border:none;
-      font-size:16px;
-      text-align:center;
-    }
+        .sidebar-header {
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:12px;
-    }
+        .logo {
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
 
-    .service{
-      background:#23264a;
-      border-radius:16px;
-      padding:16px;
-      text-align:center;
-      cursor:pointer;
-    }
+        .logo-accent {
+            color: var(--gold);
+        }
 
-    .service i{
-      font-size:26px;
-      color:var(--accent);
-    }
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+            position: relative;
+            font-weight: 500;
+        }
 
-    .service p{
-      margin:8px 0 2px;
-      font-weight:600;
-    }
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
 
-    .service small{
-      color:var(--gold);
-    }
+        .nav-item.active {
+            background: rgba(0, 163, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--accent);
+        }
 
-    ul{
-      list-style:none;
-      padding:0;
-      margin:0;
-    }
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
 
-    li{
-      display:flex;
-      justify-content:space-between;
-      padding:6px 0;
-      border-bottom:1px dashed #333;
-    }
+        .nav-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 10px 0;
+        }
 
-    .row{
-      display:flex;
-      justify-content:space-between;
-      font-size:20px;
-      font-weight:700;
-      color:var(--gold);
-    }
+        /* Main Content Area */
+        .main-content {
+            margin-left: 260px;
+            padding: 25px;
+            width: calc(100% - 260px);
+            transition: var(--transition);
+        }
 
-    .hidden{display:none}
-  </style>
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 163, 255, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0088cc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 163, 255, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* POS Layout */
+        .pos-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .pos-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Schedule List */
+        .schedule-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .schedule-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .schedule-container::-webkit-scrollbar-track {
+            background: var(--bg);
+            border-radius: 3px;
+        }
+
+        .schedule-container::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        .booking-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .booking-item:hover {
+            border-color: var(--accent);
+            background: #f8fbff;
+        }
+
+        .booking-item.active {
+            border-color: var(--accent);
+            background: #eef9ff;
+            border-width: 2px;
+        }
+
+        .booking-time {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 18px;
+        }
+
+        .booking-client {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .booking-service {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .service-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .service-card:hover {
+            border-color: var(--accent);
+            background: #f8fbff;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .service-icon {
+            font-size: 32px;
+            color: var(--accent);
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .service-price {
+            color: var(--success);
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        /* Bill Section */
+        .bill-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            position: sticky;
+            top: 20px;
+        }
+
+        .bill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .bill-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bill-items {
+            min-height: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .bill-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .bill-item:hover {
+            background: var(--bg);
+        }
+
+        .bill-item-name {
+            font-weight: 500;
+        }
+
+        .bill-item-price {
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .bill-item-remove {
+            color: var(--danger);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .bill-item-remove:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .bill-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 700;
+            padding: 20px 0;
+            border-top: 2px solid var(--border);
+            margin-top: 20px;
+        }
+
+        .bill-total-label {
+            color: var(--text);
+        }
+
+        .bill-total-amount {
+            color: var(--success);
+        }
+
+        /* Active Booking Info */
+        .active-booking-info {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .active-booking-title {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .active-booking-details {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+        }
+
+        .active-booking-detail {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .active-booking-detail strong {
+            color: var(--accent);
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .data-table th {
+            background: var(--primary);
+            color: white;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table tr:hover {
+            background: var(--bg);
+        }
+
+        /* Form Layout */
+        .form-layout {
+            display: grid;
+            gap: 20px;
+            max-width: 500px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printReceipt, #printReceipt * {
+                visibility: visible;
+            }
+            #printReceipt {
+                position: absolute;
+                left: 0;
+                top: 0;
+                display: block !important;
+                width: 80mm;
+                font-family: monospace;
+            }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+
+        .mt-20 {
+            margin-top: 20px;
+        }
+
+        /* Loading States */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 16px;
+            }
+        }
+    </style>
 </head>
-
 <body>
-<div class="app">
-
-  <!-- LOGIN -->
-  <div id="login" class="card">
-    <h1><i class="fas fa-user-shield"></i></h1>
-    <p style="text-align:center">Вход с ПИН</p>
-    <input id="pin" type="password" maxlength="4" placeholder="****">
-    <br><br>
-    <button class="btn-main" onclick="Auth.login()">ВХОД</button>
-  </div>
-
-  <!-- POS -->
-  <div id="pos" class="hidden">
-
-    <h1>BARBER PRO</h1>
-
-    <div class="grid">
-      <div class="service" onclick="POS.add('Подстригване',20)">
-        <i class="fas fa-cut"></i>
-        <p>Подстригване</p>
-        <small>20.00 лв</small>
-      </div>
-
-      <div class="service" onclick="POS.add('Брада',10)">
-        <i class="fas fa-user-tie"></i>
-        <p>Брада</p>
-        <small>10.00 лв</small>
-      </div>
-
-      <div class="service" onclick="POS.add('КОМБО',25)">
-        <i class="fas fa-star"></i>
-        <p>КОМБО</p>
-        <small>25.00 лв</small>
-      </div>
-
-      <div class="service" onclick="POS.reset()">
-        <i class="fas fa-trash" style="color:var(--danger)"></i>
-        <p>Нулирай</p>
-        <small>Изчисти</small>
-      </div>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-overlay">
+        <div class="login-box">
+            <i class="fas fa-user-shield login-icon"></i>
+            <h2 class="login-title">Операторски достъп</h2>
+            <form id="loginForm" class="form-layout">
+                <div class="form-group">
+                    <input type="password" id="pinInput" maxlength="4" placeholder="****" 
+                           class="form-control" style="text-align: center; font-size: 24px; letter-spacing: 10px;" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Вход
+                </button>
+            </form>
+        </div>
     </div>
 
-    <div class="card">
-      <h3>Избрани услуги</h3>
-      <ul id="items"></ul>
+    <!-- Main App Container -->
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    BARBER<span class="logo-accent">PRO</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <div class="nav-item active" data-tab="tab-pos">
+                    <i class="fas fa-cash-register"></i>
+                    <span>Резервации / POS</span>
+                </div>
+                
+                <div id="adminMenu" class="hidden">
+                    <div class="nav-divider"></div>
+                    <div class="nav-item" data-tab="tab-add-booking">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>Нова резервация</span>
+                    </div>
+                    <div class="nav-item" data-tab="tab-stats">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Общи отчети</span>
+                    </div>
+                    <div class="nav-item" data-tab="tab-staff">
+                        <i class="fas fa-users-cog"></i>
+                        <span>Екип</span>
+                    </div>
+                    <div class="nav-item" data-tab="tab-services">
+                        <i class="fas fa-cut"></i>
+                        <span>Услуги</span>
+                    </div>
+                </div>
+                
+                <div class="nav-divider"></div>
+                <div class="nav-item" onclick="logout()" style="color: var(--danger);">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Изход</span>
+                </div>
+            </nav>
+        </aside>
 
-      <br>
-      <div class="row">
-        <span>ОБЩО</span>
-        <span id="total">0.00 лв</span>
-      </div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- POS Tab -->
+            <div id="tab-pos" class="tab-content">
+                <div class="pos-container">
+                    <!-- Left Column -->
+                    <div class="pos-left">
+                        <!-- Schedule Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <i class="fas fa-calendar-day"></i>
+                                    График за днес
+                                </h3>
+                                <span id="scheduleCount" class="badge">0</span>
+                            </div>
+                            <div id="scheduleList" class="schedule-container">
+                                <!-- Schedule items will be loaded here -->
+                            </div>
+                        </div>
 
-      <br>
-      <select id="payment">
-        <option value="cash">В брой</option>
-        <option value="card">Карта</option>
-      </select>
+                        <!-- Services Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <i class="fas fa-plus-circle"></i>
+                                    Бързи услуги
+                                </h3>
+                            </div>
+                            <div id="servicesGrid" class="services-grid">
+                                <!-- Services will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
 
-      <br><br>
-      <button class="btn-main" onclick="POS.finish()">ФИНАЛИЗИРАЙ</button>
+                    <!-- Right Column - Bill -->
+                    <div class="bill-section">
+                        <div class="bill-header">
+                            <h3 class="bill-title">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                                Текуща сметка
+                            </h3>
+                            <button class="btn btn-outline" onclick="clearBill()">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+
+                        <!-- Active Booking Info -->
+                        <div id="activeBookingInfo" class="active-booking-info">
+                            <div class="active-booking-title">Активна резервация</div>
+                            <div class="active-booking-details">
+                                <div class="active-booking-detail">
+                                    <i class="fas fa-hashtag"></i>
+                                    Код: <strong id="activeBookingCode">-</strong>
+                                </div>
+                                <div class="active-booking-detail">
+                                    <i class="fas fa-user"></i>
+                                    Клиент: <strong id="activeBookingClient">-</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bill Items -->
+                        <div id="billItems" class="bill-items">
+                            <div class="text-center text-muted" style="padding: 40px; color: var(--text-light);">
+                                <i class="fas fa-shopping-cart" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                                <p>Няма добавени услуги</p>
+                            </div>
+                        </div>
+
+                        <!-- Bill Total -->
+                        <div class="bill-total">
+                            <span class="bill-total-label">Общо:</span>
+                            <span class="bill-total-amount">
+                                <span id="totalPrice">0.00</span> лв.
+                            </span>
+                        </div>
+
+                        <!-- Payment Button -->
+                        <button class="btn btn-success" onclick="finalizePayment()" id="finalizeBtn">
+                            <i class="fas fa-check-circle"></i>
+                            Финализирай плащане
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Booking Tab -->
+            <div id="tab-add-booking" class="tab-content hidden">
+                <div class="card" style="max-width: 600px; margin: 0 auto;">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-calendar-plus"></i>
+                            Нова резервация
+                        </h3>
+                    </div>
+                    <form id="bookingForm" class="form-layout">
+                        <div class="form-group">
+                            <label class="form-label" for="bookClient">Име на клиент</label>
+                            <input type="text" id="bookClient" class="form-control" placeholder="Въведете име" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="bookDate">Дата</label>
+                                <input type="date" id="bookDate" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="bookTime">Час</label>
+                                <input type="time" id="bookTime" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="bookService">Услуга</label>
+                            <select id="bookService" class="form-control" required>
+                                <option value="">Изберете услуга</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="bookPhone">Телефон (незадължително)</label>
+                            <input type="tel" id="bookPhone" class="form-control" placeholder="0899 123 456">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="bookNotes">Бележки (незадължително)</label>
+                            <textarea id="bookNotes" class="form-control" rows="3" placeholder="Допълнителна информация"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Запази резервация
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="tab-stats" class="tab-content hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-line"></i>
+                            Облачен отчет
+                        </h3>
+                        <div class="card-actions">
+                            <button class="btn btn-outline" onclick="refreshStats()">
+                                <i class="fas fa-sync-alt"></i>
+                                Обнови
+                            </button>
+                        </div>
+                    </div>
+                    <div id="statsTableContainer">
+                        <!-- Stats will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Tab -->
+            <div id="tab-staff" class="tab-content hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-users-cog"></i>
+                            Управление на екип
+                        </h3>
+                    </div>
+                    <form id="staffForm" class="form-layout mb-20">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="sName">Име</label>
+                                <input type="text" id="sName" class="form-control" placeholder="Въведете име" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="sPin">ПИН</label>
+                                <input type="password" id="sPin" class="form-control" placeholder="4 цифри" maxlength="4" pattern="\d{4}" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="sRole">Роля</label>
+                            <select id="sRole" class="form-control">
+                                <option value="operator">Оператор</option>
+                                <option value="admin">Админ</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Добави служител
+                        </button>
+                    </form>
+                    <div class="table-responsive">
+                        <table id="staffTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Име</th>
+                                    <th>ПИН</th>
+                                    <th>Роля</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services Tab -->
+            <div id="tab-services" class="tab-content hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-cut"></i>
+                            Управление на услуги
+                        </h3>
+                    </div>
+                    <form id="serviceForm" class="form-layout mb-20">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="svName">Име на услуга</label>
+                                <input type="text" id="svName" class="form-control" placeholder="Въведете име" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="svPrice">Цена (лв.)</label>
+                                <input type="number" id="svPrice" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="svDuration">Продължителност (мин.)</label>
+                            <input type="number" id="svDuration" class="form-control" placeholder="30" min="15" step="15">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="svCategory">Категория</label>
+                            <select id="svCategory" class="form-control">
+                                <option value="hair">Коса</option>
+                                <option value="beard">Брада</option>
+                                <option value="combo">Комбо</option>
+                                <option value="other">Други</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Добави услуга
+                        </button>
+                    </form>
+                    <div class="table-responsive">
+                        <table id="servicesTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Име</th>
+                                    <th>Цена</th>
+                                    <th>Продължителност</th>
+                                    <th>Категория</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-  </div>
-</div>
+    <!-- Print Receipt -->
+    <div id="printReceipt" style="display: none; font-family: monospace; padding: 20px;">
+        <center>
+            <h2 style="margin-bottom: 10px;">BARBER PRO</h2>
+            <p id="receiptDate"></p>
+        </center>
+        <hr style="margin: 10px 0;">
+        <div id="receiptItems"></div>
+        <hr style="margin: 10px 0;">
+        <div style="display: flex; justify-content: space-between; font-weight: bold;">
+            <span>ОБЩО:</span>
+            <span id="receiptTotal"></span>
+        </div>
+        <center style="margin-top: 20px; font-size: 12px;">
+            <p>Благодарим ви за доверието!</p>
+            <p>barberpro.com</p>
+        </center>
+    </div>
 
-<script>
-/* ========= AUTH ========= */
-const Auth = {
-  users: {
-    "1234": { name: "Админ" }   // <-- смени ПИН-а тук
-  },
-  login(){
-    const p = pin.value;
-    if(this.users[p]){
-      login.classList.add('hidden');
-      pos.classList.remove('hidden');
-    } else {
-      alert("Грешен ПИН код!");
-    }
-  }
-}
+    <!-- Firebase Scripts -->
+    <script type="module">
+        // Firebase configuration and initialization
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            onSnapshot, 
+            query, 
+            orderBy, 
+            serverTimestamp, 
+            deleteDoc, 
+            doc,
+            updateDoc 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* ========= POS ========= */
-const POS = {
-  items: [],
-  total: 0,
+        const firebaseConfig = {
+            apiKey: "AIzaSyCo4eLTJZIsocuxe5Jpp4HlJV9QCrdfO8I",
+            authDomain: "barberpro-49b26.firebaseapp.com",
+            projectId: "barberpro-49b26",
+            storageBucket: "barberpro-49b26.firebasestorage.app",
+            messagingSenderId: "390589993920",
+            appId: "1:390589993920:web:6c5393d1ebba06222c6e25"
+        };
 
-  add(name, price){
-    this.items.push({name, price});
-    this.total += price;
-    this.render();
-  },
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-  reset(){
-    this.items = [];
-    this.total = 0;
-    this.render();
-  },
+        // Application State
+        class AppState {
+            constructor() {
+                this.currentUser = null;
+                this.currentBill = [];
+                this.activeBooking = null;
+                this.data = this.loadLocalData();
+                this.init();
+            }
 
-  finish(){
-    if(this.total === 0){
-      alert("Няма избрани услуги!");
-      return;
-    }
+            init() {
+                this.setupEventListeners();
+                this.setupTabs();
+                this.setupForms();
+                this.renderServices();
+                this.renderSchedule();
+                this.updateServiceDropdown();
+                this.setupRealtimeStats();
+            }
 
-    const sales = JSON.parse(localStorage.getItem("sales") || "[]");
-    sales.push({
-      date: new Date().toLocaleString(),
-      items: this.items,
-      total: this.total,
-      payment: payment.value
-    });
+            loadLocalData() {
+                return JSON.parse(localStorage.getItem('barber_pro_data')) || {
+                    staff: [
+                        { id: 'admin-1', name: "Админ", pin: "0000", role: "admin" }
+                    ],
+                    services: [
+                        { id: 'service-1', name: "Подстригване", price: 20, duration: 30, category: "hair" },
+                        { id: 'service-2', name: "Брада", price: 10, duration: 20, category: "beard" }
+                    ],
+                    bookings: []
+                };
+            }
 
-    localStorage.setItem("sales", JSON.stringify(sales));
+            saveLocalData() {
+                localStorage.setItem('barber_pro_data', JSON.stringify(this.data));
+            }
 
-    alert("Продажба " + this.total.toFixed(2) + " лв записана ✔");
-    this.reset();
-  },
+            setupEventListeners() {
+                // Login form
+                document.getElementById('loginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.login();
+                });
 
-  render(){
-    items.innerHTML = this.items
-      .map(i => `<li>${i.name}<span>${i.price.toFixed(2)} лв</span></li>`)
-      .join("");
-    total.innerText = this.total.toFixed(2) + " лв";
-  }
-}
-</script>
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                        switch(e.key) {
+                            case 'Enter':
+                                e.preventDefault();
+                                if (this.currentBill.length > 0) {
+                                    this.finalizePayment();
+                                }
+                                break;
+                            case 'Delete':
+                                e.preventDefault();
+                                this.clearBill();
+                                break;
+                        }
+                    }
+                });
+            }
 
+            setupTabs() {
+                document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const tabId = item.dataset.tab;
+                        this.showTab(tabId);
+                        
+                        // Update active state
+                        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                        item.classList.add('active');
+                    });
+                });
+            }
+
+            setupForms() {
+                // Booking form
+                document.getElementById('bookingForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addBooking();
+                });
+
+                // Staff form
+                document.getElementById('staffForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addStaff();
+                });
+
+                // Service form
+                document.getElementById('serviceForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addService();
+                });
+            }
+
+            // Authentication
+            login() {
+                const pin = document.getElementById('pinInput').value;
+                const user = this.data.staff.find(u => u.pin === pin);
+                
+                if (user) {
+                    this.currentUser = user;
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    
+                    if (user.role === 'admin') {
+                        document.getElementById('adminMenu').classList.remove('hidden');
+                    }
+                    
+                    this.showNotification(`Добре дошли, ${user.name}!`, 'success');
+                } else {
+                    this.showNotification('Грешен ПИН!', 'error');
+                    document.getElementById('pinInput').value = '';
+                    document.getElementById('pinInput').focus();
+                }
+            }
+
+            logout() {
+                this.currentUser = null;
+                this.currentBill = [];
+                this.activeBooking = null;
+                location.reload();
+            }
+
+            // Tab Management
+            showTab(tabId) {
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.add('hidden');
+                });
+                
+                const targetTab = document.getElementById(tabId);
+                if (targetTab) {
+                    targetTab.classList.remove('hidden');
+                    
+                    // Load tab-specific data
+                    switch(tabId) {
+                        case 'tab-stats':
+                            this.renderStats();
+                            break;
+                        case 'tab-staff':
+                            this.renderStaff();
+                            break;
+                        case 'tab-services':
+                            this.renderServicesTable();
+                            break;
+                    }
+                }
+            }
+
+            // Services Management
+            renderServices() {
+                const container = document.getElementById('servicesGrid');
+                container.innerHTML = this.data.services.map(service => `
+                    <div class="service-card" onclick="app.addServiceToBill('${service.id}')">
+                        <i class="service-icon fas fa-cut"></i>
+                        <div class="service-name">${service.name}</div>
+                        <div class="service-price">${service.price.toFixed(2)} лв.</div>
+                    </div>
+                `).join('');
+            }
+
+            addServiceToBill(serviceId) {
+                const service = this.data.services.find(s => s.id === serviceId);
+                if (service) {
+                    this.currentBill.push({
+                        id: Date.now().toString(),
+                        serviceId: service.id,
+                        name: service.name,
+                        price: service.price,
+                        duration: service.duration
+                    });
+                    this.updateBillUI();
+                    this.showNotification(`${service.name} добавен към сметката`, 'success');
+                }
+            }
+
+            // Bill Management
+            updateBillUI() {
+                const container = document.getElementById('billItems');
+                const total = this.currentBill.reduce((sum, item) => sum + item.price, 0);
+                
+                if (this.currentBill.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-muted" style="padding: 40px;">
+                            <i class="fas fa-shopping-cart" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                            <p>Няма добавени услуги</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = this.currentBill.map((item, index) => `
+                        <div class="bill-item">
+                            <div class="bill-item-name">${item.name}</div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span class="bill-item-price">${item.price.toFixed(2)} лв.</span>
+                                <i class="fas fa-trash bill-item-remove" onclick="app.removeBillItem(${index})"></i>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                document.getElementById('totalPrice').textContent = total.toFixed(2);
+                document.getElementById('finalizeBtn').disabled = this.currentBill.length === 0;
+            }
+
+            removeBillItem(index) {
+                const removed = this.currentBill.splice(index, 1)[0];
+                this.updateBillUI();
+                this.showNotification(`${removed.name} премахнат от сметката`, 'info');
+            }
+
+            clearBill() {
+                if (this.currentBill.length > 0) {
+                    this.currentBill = [];
+                    this.activeBooking = null;
+                    this.updateBillUI();
+                    this.hideActiveBookingInfo();
+                    this.showNotification('Сметката е изчистена', 'info');
+                }
+            }
+
+            // Booking Management
+            renderSchedule() {
+                const container = document.getElementById('scheduleList');
+                const today = new Date().toISOString().split('T')[0];
+                const todayBookings = this.data.bookings.filter(b => b.date === today);
+                
+                todayBookings.sort((a, b) => a.time.localeCompare(b.time));
+                
+                if (todayBookings.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-muted" style="padding: 40px;">
+                            <i class="fas fa-calendar-times" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                            <p>Няма резервации за днес</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = todayBookings.map(booking => `
+                        <div class="booking-item" onclick="app.selectBooking('${booking.id}')">
+                            <div>
+                                <div class="booking-time">${booking.time}</div>
+                                <div class="booking-client">${booking.client}</div>
+                                ${booking.phone ? `<div class="booking-service"><i class="fas fa-phone"></i> ${booking.phone}</div>` : ''}
+                            </div>
+                            <div class="text-right">
+                                <div class="booking-service">${booking.service}</div>
+                                <div style="color: var(--success); font-weight: 600;">${booking.price.toFixed(2)} лв.</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                document.getElementById('scheduleCount').textContent = todayBookings.length;
+            }
+
+            selectBooking(bookingId) {
+                const booking = this.data.bookings.find(b => b.id === bookingId);
+                if (booking) {
+                    this.activeBooking = booking;
+                    this.showActiveBookingInfo(booking);
+                    
+                    // Add to bill
+                    this.currentBill = [{
+                        id: 'booking-' + Date.now(),
+                        serviceId: booking.serviceId,
+                        name: booking.service,
+                        price: booking.price,
+                        isFromBooking: true
+                    }];
+                    this.updateBillUI();
+                    
+                    // Highlight selected booking
+                    document.querySelectorAll('.booking-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    event.currentTarget.classList.add('active');
+                }
+            }
+
+            showActiveBookingInfo(booking) {
+                document.getElementById('activeBookingInfo').style.display = 'block';
+                document.getElementById('activeBookingCode').textContent = booking.code;
+                document.getElementById('activeBookingClient').textContent = booking.client;
+            }
+
+            hideActiveBookingInfo() {
+                document.getElementById('activeBookingInfo').style.display = 'none';
+                document.querySelectorAll('.booking-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+            }
+
+            addBooking() {
+                const form = document.getElementById('bookingForm');
+                const formData = new FormData(form);
+                
+                const booking = {
+                    id: 'booking-' + Date.now(),
+                    code: 'B' + Date.now().toString().slice(-4),
+                    client: document.getElementById('bookClient').value,
+                    phone: document.getElementById('bookPhone').value,
+                    date: document.getElementById('bookDate').value,
+                    time: document.getElementById('bookTime').value,
+                    serviceId: this.getServiceIdByName(document.getElementById('bookService').value),
+                    service: document.getElementById('bookService').value,
+                    price: this.getServicePriceByName(document.getElementById('bookService').value),
+                    notes: document.getElementById('bookNotes').value,
+                    status: 'confirmed',
+                    createdAt: new Date().toISOString(),
+                    createdBy: this.currentUser.name
+                };
+                
+                this.data.bookings.push(booking);
+                this.saveLocalData();
+                this.renderSchedule();
+                
+                form.reset();
+                this.showNotification('Резервацията е създадена успешно!', 'success');
+                this.showTab('tab-pos');
+            }
+
+            // Payment Processing
+            async finalizePayment() {
+                if (this.currentBill.length === 0) return;
+                
+                const total = this.currentBill.reduce((sum, item) => sum + item.price, 0);
+                
+                try {
+                    // Save to cloud
+                    await addDoc(collection(db, "sales"), {
+                        operator: this.currentUser.name,
+                        operatorId: this.currentUser.id,
+                        items: this.currentBill,
+                        total: total,
+                        bookingId: this.activeBooking ? this.activeBooking.id : null,
+                        timestamp: serverTimestamp(),
+                        date: new Date().toISOString().split('T')[0],
+                        time: new Date().toTimeString().split(' ')[0]
+                    });
+                    
+                    // If from booking, update booking status
+                    if (this.activeBooking) {
+                        const bookingIndex = this.data.bookings.findIndex(b => b.id === this.activeBooking.id);
+                        if (bookingIndex !== -1) {
+                            this.data.bookings[bookingIndex].status = 'completed';
+                            this.data.bookings[bookingIndex].completedAt = new Date().toISOString();
+                            this.data.bookings[bookingIndex].completedBy = this.currentUser.name;
+                        }
+                    }
+                    
+                    this.saveLocalData();
+                    
+                    // Print receipt
+                    this.printReceipt();
+                    
+                    // Reset state
+                    this.currentBill = [];
+                    this.activeBooking = null;
+                    this.updateBillUI();
+                    this.hideActiveBookingInfo();
+                    this.renderSchedule();
+                    
+                    this.showNotification('Плащането е обработено успешно!', 'success');
+                    
+                } catch (error) {
+                    console.error('Error processing payment:', error);
+                    this.showNotification('Грешка при обработка на плащането!', 'error');
+                }
+            }
+
+            printReceipt() {
+                const total = this.currentBill.reduce((sum, item) => sum + item.price, 0);
+                const now = new Date();
+                
+                document.getElementById('receiptDate').textContent = now.toLocaleDateString('bg-BG') + ' ' + now.toLocaleTimeString('bg-BG');
+                document.getElementById('receiptItems').innerHTML = this.currentBill.map(item => `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>${item.name}</span>
+                        <span>${item.price.toFixed(2)} лв.</span>
+                    </div>
+                `).join('');
+                document.getElementById('receiptTotal').textContent = total.toFixed(2) + ' лв.';
+                
+                window.print();
+            }
+
+            // Stats Management
+            setupRealtimeStats() {
+                const q = query(collection(db, "sales"), orderBy("timestamp", "desc"));
+                onSnapshot(q, (snapshot) => {
+                    this.renderStatsFromSnapshot(snapshot);
+                });
+            }
+
+            renderStatsFromSnapshot(snapshot) {
+                const container = document.getElementById('statsTableContainer');
+                let html = '<table class="data-table"><thead><tr><th>Час</th><th>Оператор</th><th>Услуги</th><th>Сума</th></tr></thead><tbody>';
+                
+                if (snapshot.empty) {
+                    html += '<tr><td colspan="4" class="text-center">Няма продажби за днес</td></tr>';
+                } else {
+                    let total = 0;
+                    snapshot.forEach(doc => {
+                        const sale = doc.data();
+                        const time = sale.timestamp ? new Date(sale.timestamp.seconds * 1000).toLocaleTimeString('bg-BG') : '';
+                        const items = sale.items.map(item => item.name).join(', ');
+                        total += sale.total;
+                        
+                        html += `<tr>
+                            <td>${time}</td>
+                            <td>${sale.operator}</td>
+                            <td>${items}</td>
+                            <td style="font-weight: 600; color: var(--success);">${sale.total.toFixed(2)} лв.</td>
+                        </tr>`;
+                    });
+                    
+                    html += `<tr style="background: var(--bg); font-weight: 700;">
+                        <td colspan="3">ОБЩО ЗА ДНЕС:</td>
+                        <td style="color: var(--success);">${total.toFixed(2)} лв.</td>
+                    </tr>`;
+                }
+                
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            }
+
+            // Staff Management
+            addStaff() {
+                const name = document.getElementById('sName').value;
+                const pin = document.getElementById('sPin').value;
+                const role = document.getElementById('sRole').value;
+                
+                if (this.data.staff.find(s => s.pin === pin)) {
+                    this.showNotification('ПИН вече съществува!', 'error');
+                    return;
+                }
+                
+                const staff = {
+                    id: 'staff-' + Date.now(),
+                    name: name,
+                    pin: pin,
+                    role: role,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.data.staff.push(staff);
+                this.saveLocalData();
+                this.renderStaff();
+                
+                document.getElementById('staffForm').reset();
+                this.showNotification('Служителят е добавен успешно!', 'success');
+            }
+
+            renderStaff() {
+                const tbody = document.querySelector('#staffTable tbody');
+                tbody.innerHTML = this.data.staff.map(staff => `
+                    <tr>
+                        <td>${staff.name}</td>
+                        <td>****</td>
+                        <td>${staff.role === 'admin' ? 'Админ' : 'Оператор'}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="app.removeStaff('${staff.id}')" style="padding: 4px 8px; font-size: 12px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            removeStaff(staffId) {
+                if (confirm('Сигурни ли сте, че искате да изтриете този служител?')) {
+                    this.data.staff = this.data.staff.filter(s => s.id !== staffId);
+                    this.saveLocalData();
+                    this.renderStaff();
+                    this.showNotification('Служителят е изтрит успешно!', 'success');
+                }
+            }
+
+            // Service Management
+            addService() {
+                const name = document.getElementById('svName').value;
+                const price = parseFloat(document.getElementById('svPrice').value);
+                const duration = parseInt(document.getElementById('svDuration').value) || 30;
+                const category = document.getElementById('svCategory').value;
+                
+                const service = {
+                    id: 'service-' + Date.now(),
+                    name: name,
+                    price: price,
+                    duration: duration,
+                    category: category,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.data.services.push(service);
+                this.saveLocalData();
+                this.renderServices();
+                this.renderServicesTable();
+                this.updateServiceDropdown();
+                
+                document.getElementById('serviceForm').reset();
+                this.showNotification('Услугата е добавена успешно!', 'success');
+            }
+
+            renderServicesTable() {
+                const tbody = document.querySelector('#servicesTable tbody');
+                tbody.innerHTML = this.data.services.map(service => `
+                    <tr>
+                        <td>${service.name}</td>
+                        <td>${service.price.toFixed(2)} лв.</td>
+                        <td>${service.duration} мин.</td>
+                        <td>${this.getCategoryName(service.category)}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="app.removeService('${service.id}')" style="padding: 4px 8px; font-size: 12px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            removeService(serviceId) {
+                if (confirm('Сигурни ли сте, че искате да изтриете тази услуга?')) {
+                    this.data.services = this.data.services.filter(s => s.id !== serviceId);
+                    this.saveLocalData();
+                    this.renderServices();
+                    this.renderServicesTable();
+                    this.updateServiceDropdown();
+                    this.showNotification('Услугата е изтрита успешно!', 'success');
+                }
+            }
+
+            updateServiceDropdown() {
+                const select = document.getElementById('bookService');
+                select.innerHTML = '<option value="">Изберете услуга</option>' +
+                    this.data.services.map(service => `<option value="${service.name}">${service.name} - ${service.price.toFixed(2)} лв.</option>`).join('');
+            }
+
+            // Utility Methods
+            getServiceIdByName(name) {
+                const service = this.data.services.find(s => s.name === name);
+                return service ? service.id : null;
+            }
+
+            getServicePriceByName(name) {
+                const service = this.data.services.find(s => s.name === name);
+                return service ? service.price : 0;
+            }
+
+            getCategoryName(category) {
+                const categories = {
+                    hair: 'Коса',
+                    beard: 'Брада',
+                    combo: 'Комбо',
+                    other: 'Други'
+                };
+                return categories[category] || category;
+            }
+
+            showNotification(message, type = 'info') {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : 'var(--accent)'};
+                    color: white;
+                    padding: 16px 24px;
+                    border-radius: 8px;
+                    box-shadow: var(--shadow);
+                    z-index: 10000;
+                    font-weight: 500;
+                    transform: translateX(400px);
+                    transition: transform 0.3s ease;
+                `;
+                notification.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}-circle" style="margin-right: 8px;"></i>
+                    ${message}
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Animate in
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 100);
+                
+                // Remove after 4 seconds
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(400px)';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 4000);
+            }
+
+            // Initialize app
+            static init() {
+                window.app = new AppState();
+            }
+        }
+
+        // Initialize the application
+        AppState.init();
+
+        // Make functions global for HTML onclick handlers
+        window.logout = () => window.app.logout();
+        window.showTab = (tabId) => window.app.showTab(tabId);
+        window.addServiceToBill = (serviceId) => window.app.addServiceToBill(serviceId);
+        window.removeBillItem = (index) => window.app.removeBillItem(index);
+        window.clearBill = () => window.app.clearBill();
+        window.selectBooking = (bookingId) => window.app.selectBooking(bookingId);
+        window.finalizePayment = () => window.app.finalizePayment();
+        window.removeStaff = (staffId) => window.app.removeStaff(staffId);
+        window.removeService = (serviceId) => window.app.removeService(serviceId);
+        window.refreshStats = () => window.app.renderStats();
+
+        // Set today's date as default for booking
+        document.getElementById('bookDate').valueAsDate = new Date();
+    </script>
 </body>
 </html>
