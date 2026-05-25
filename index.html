@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barber Pro Ultimate - Cloud ERP</title>
     
-    <!-- External Libraries -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
@@ -192,6 +191,15 @@
             gap: 10px;
         }
 
+        .badge {
+            background: var(--accent);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
         /* Form Elements */
         .form-group {
             margin-bottom: 20px;
@@ -250,6 +258,7 @@
         .btn-success {
             background: var(--success);
             color: white;
+            width: 100%;
         }
 
         .btn-success:hover {
@@ -594,123 +603,74 @@
         .text-right {
             text-align: right;
         }
-
-        .mb-0 {
-            margin-bottom: 0;
-        }
-
-        .mb-20 {
-            margin-bottom: 20px;
-        }
-
-        .mt-20 {
-            margin-top: 20px;
-        }
-
-        /* Loading States */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-            
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-                padding: 16px;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
+
     <div id="loginScreen" class="login-overlay">
         <div class="login-box">
             <i class="fas fa-user-shield login-icon"></i>
             <h2 class="login-title">Операторски достъп</h2>
-            <form id="loginForm" class="form-layout">
+            <div class="form-layout">
                 <div class="form-group">
                     <input type="password" id="pinInput" maxlength="4" placeholder="****" 
                            class="form-control" style="text-align: center; font-size: 24px; letter-spacing: 10px;" required>
                 </div>
-                <button type="submit" class="btn btn-primary">
+                <button type="button" onclick="App.auth.login()" class="btn btn-primary">
                     <i class="fas fa-sign-in-alt"></i> Вход
                 </button>
-            </form>
+            </div>
         </div>
     </div>
 
-    <!-- Main App Container -->
-    <div class="app-container">
-        <!-- Sidebar -->
+    <div class="app-container hidden" id="mainApp">
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
                     BARBER<span class="logo-accent">PRO</span>
                 </div>
+                <small id="currentWorkerDisplay" style="color: var(--gold); display: block; margin-top: 5px; font-weight: bold;"></small>
             </div>
             
             <nav class="nav-menu">
-                <div class="nav-item active" data-tab="tab-pos">
+                <div class="nav-item active" data-tab="tab-pos" onclick="App.ui.switchTab('tab-pos', this)">
                     <i class="fas fa-cash-register"></i>
                     <span>Резервации / POS</span>
                 </div>
                 
                 <div id="adminMenu" class="hidden">
                     <div class="nav-divider"></div>
-                    <div class="nav-item" data-tab="tab-add-booking">
+                    <div class="nav-item" data-tab="tab-add-booking" onclick="App.ui.switchTab('tab-add-booking', this)">
                         <i class="fas fa-calendar-plus"></i>
                         <span>Нова резервация</span>
                     </div>
-                    <div class="nav-item" data-tab="tab-stats">
+                    <div class="nav-item" data-tab="tab-stats" onclick="App.ui.switchTab('tab-stats', this)">
                         <i class="fas fa-chart-line"></i>
                         <span>Общи отчети</span>
                     </div>
-                    <div class="nav-item" data-tab="tab-staff">
+                    <div class="nav-item" data-tab="tab-staff" onclick="App.ui.switchTab('tab-staff', this)">
                         <i class="fas fa-users-cog"></i>
                         <span>Екип</span>
                     </div>
-                    <div class="nav-item" data-tab="tab-services">
+                    <div class="nav-item" data-tab="tab-services" onclick="App.ui.switchTab('tab-services', this)">
                         <i class="fas fa-cut"></i>
                         <span>Услуги</span>
                     </div>
                 </div>
                 
                 <div class="nav-divider"></div>
-                <div class="nav-item" onclick="logout()" style="color: var(--danger);">
+                <div class="nav-item" onclick="App.auth.logout()" style="color: var(--danger);">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Изход</span>
                 </div>
             </nav>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- POS Tab -->
+            
             <div id="tab-pos" class="tab-content">
                 <div class="pos-container">
-                    <!-- Left Column -->
                     <div class="pos-left">
-                        <!-- Schedule Card -->
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">
@@ -719,12 +679,9 @@
                                 </h3>
                                 <span id="scheduleCount" class="badge">0</span>
                             </div>
-                            <div id="scheduleList" class="schedule-container">
-                                <!-- Schedule items will be loaded here -->
-                            </div>
+                            <div id="scheduleList" class="schedule-container"></div>
                         </div>
 
-                        <!-- Services Card -->
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">
@@ -732,25 +689,21 @@
                                     Бързи услуги
                                 </h3>
                             </div>
-                            <div id="servicesGrid" class="services-grid">
-                                <!-- Services will be loaded here -->
-                            </div>
+                            <div id="servicesGrid" class="services-grid"></div>
                         </div>
                     </div>
 
-                    <!-- Right Column - Bill -->
                     <div class="bill-section">
                         <div class="bill-header">
                             <h3 class="bill-title">
                                 <i class="fas fa-file-invoice-dollar"></i>
                                 Текуща сметка
                             </h3>
-                            <button class="btn btn-outline" onclick="clearBill()">
+                            <button class="btn btn-outline" onclick="App.pos.clearBill()">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
 
-                        <!-- Active Booking Info -->
                         <div id="activeBookingInfo" class="active-booking-info">
                             <div class="active-booking-title">Активна резервация</div>
                             <div class="active-booking-details">
@@ -765,15 +718,16 @@
                             </div>
                         </div>
 
-                        <!-- Bill Items -->
-                        <div id="billItems" class="bill-items">
-                            <div class="text-center text-muted" style="padding: 40px; color: var(--text-light);">
-                                <i class="fas fa-shopping-cart" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
-                                <p>Няма добавени услуги</p>
-                            </div>
+                        <div id="billItems" class="bill-items"></div>
+
+                        <div class="form-group">
+                            <label class="form-label">Метод на плащане</label>
+                            <select id="paymentMethod" class="form-control">
+                                <option value="В брой">В брой</option>
+                                <option value="Карта">Карта</option>
+                            </select>
                         </div>
 
-                        <!-- Bill Total -->
                         <div class="bill-total">
                             <span class="bill-total-label">Общо:</span>
                             <span class="bill-total-amount">
@@ -781,8 +735,7 @@
                             </span>
                         </div>
 
-                        <!-- Payment Button -->
-                        <button class="btn btn-success" onclick="finalizePayment()" id="finalizeBtn">
+                        <button class="btn btn-success" onclick="App.pos.finalize()" id="finalizeBtn">
                             <i class="fas fa-check-circle"></i>
                             Финализирай плащане
                         </button>
@@ -790,7 +743,6 @@
                 </div>
             </div>
 
-            <!-- Add Booking Tab -->
             <div id="tab-add-booking" class="tab-content hidden">
                 <div class="card" style="max-width: 600px; margin: 0 auto;">
                     <div class="card-header">
@@ -799,7 +751,7 @@
                             Нова резервация
                         </h3>
                     </div>
-                    <form id="bookingForm" class="form-layout">
+                    <div class="form-layout">
                         <div class="form-group">
                             <label class="form-label" for="bookClient">Име на клиент</label>
                             <input type="text" id="bookClient" class="form-control" placeholder="Въведете име" required>
@@ -828,15 +780,14 @@
                             <label class="form-label" for="bookNotes">Бележки (незадължително)</label>
                             <textarea id="bookNotes" class="form-control" rows="3" placeholder="Допълнителна информация"></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" onclick="App.db.addBooking()" class="btn btn-primary">
                             <i class="fas fa-save"></i>
                             Запази резервация
                         </button>
-                    </form>
+                    </div>
                 </div>
             </div>
 
-            <!-- Stats Tab -->
             <div id="tab-stats" class="tab-content hidden">
                 <div class="card">
                     <div class="card-header">
@@ -844,20 +795,25 @@
                             <i class="fas fa-chart-line"></i>
                             Облачен отчет
                         </h3>
-                        <div class="card-actions">
-                            <button class="btn btn-outline" onclick="refreshStats()">
-                                <i class="fas fa-sync-alt"></i>
-                                Обнови
-                            </button>
-                        </div>
                     </div>
                     <div id="statsTableContainer">
-                        <!-- Stats will be loaded here -->
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Дата и Час</th>
+                                    <th>Оператор</th>
+                                    <th>Клиент</th>
+                                    <th>Услуги</th>
+                                    <th>Плащане</th>
+                                    <th>Сума</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesTableBody"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Staff Tab -->
             <div id="tab-staff" class="tab-content hidden">
                 <div class="card">
                     <div class="card-header">
@@ -866,7 +822,7 @@
                             Управление на екип
                         </h3>
                     </div>
-                    <form id="staffForm" class="form-layout mb-20">
+                    <div class="form-layout mb-20" style="margin-bottom: 20px;">
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label" for="sName">Име</label>
@@ -874,7 +830,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="sPin">ПИН</label>
-                                <input type="password" id="sPin" class="form-control" placeholder="4 цифри" maxlength="4" pattern="\d{4}" required>
+                                <input type="password" id="sPin" class="form-control" placeholder="4 цифри" maxlength="4" required>
                             </div>
                         </div>
                         <div class="form-group">
@@ -884,28 +840,26 @@
                                 <option value="admin">Админ</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" onclick="App.db.addStaff()" class="btn btn-primary">
                             <i class="fas fa-plus"></i>
                             Добави служител
                         </button>
-                    </form>
+                    </div>
                     <div class="table-responsive">
                         <table id="staffTable" class="data-table">
                             <thead>
                                 <tr>
                                     <th>Име</th>
-                                    <th>ПИН</th>
                                     <th>Роля</th>
-                                    <th>Действия</th>
+                                    <th>Операции</th>
                                 </tr>
                             </thead>
-                            <tbody></tbody>
+                            <tbody id="staffTableBody"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Services Tab -->
             <div id="tab-services" class="tab-content hidden">
                 <div class="card">
                     <div class="card-header">
@@ -914,721 +868,442 @@
                             Управление на услуги
                         </h3>
                     </div>
-                    <form id="serviceForm" class="form-layout mb-20">
+                    <div class="form-layout" style="margin-bottom: 20px;">
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label" for="svName">Име на услуга</label>
-                                <input type="text" id="svName" class="form-control" placeholder="Въведете име" required>
+                                <label class="form-label">Име на услуга</label>
+                                <input type="text" id="newServiceName" class="form-control" placeholder="Напр. Оформяне на мустаци">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" for="svPrice">Цена (лв.)</label>
-                                <input type="number" id="svPrice" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+                                <label class="form-label">Цена (лв.)</label>
+                                <input type="number" id="newServicePrice" class="form-control" placeholder="20.00">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label" for="svDuration">Продължителност (мин.)</label>
-                            <input type="number" id="svDuration" class="form-control" placeholder="30" min="15" step="15">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="svCategory">Категория</label>
-                            <select id="svCategory" class="form-control">
-                                <option value="hair">Коса</option>
-                                <option value="beard">Брада</option>
-                                <option value="combo">Комбо</option>
-                                <option value="other">Други</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Добави услуга
-                        </button>
-                    </form>
-                    <div class="table-responsive">
-                        <table id="servicesTable" class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Име</th>
-                                    <th>Цена</th>
-                                    <th>Продължителност</th>
-                                    <th>Категория</th>
-                                    <th>Действия</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                        <button type="button" onclick="App.db.addService()" class="btn btn-primary">Добави в Ценоразпис</button>
                     </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Услуга</th>
+                                <th>Цена</th>
+                                <th>Управление</th>
+                            </tr>
+                        </thead>
+                        <tbody id="servicesTableBody"></tbody>
+                    </table>
                 </div>
             </div>
+
         </main>
     </div>
 
-    <!-- Print Receipt -->
-    <div id="printReceipt" style="display: none; font-family: monospace; padding: 20px;">
-        <center>
-            <h2 style="margin-bottom: 10px;">BARBER PRO</h2>
-            <p id="receiptDate"></p>
-        </center>
-        <hr style="margin: 10px 0;">
-        <div id="receiptItems"></div>
-        <hr style="margin: 10px 0;">
-        <div style="display: flex; justify-content: space-between; font-weight: bold;">
-            <span>ОБЩО:</span>
-            <span id="receiptTotal"></span>
-        </div>
-        <center style="margin-top: 20px; font-size: 12px;">
-            <p>Благодарим ви за доверието!</p>
-            <p>barberpro.com</p>
-        </center>
-    </div>
+    <div id="printReceipt" style="display: none;"></div>
 
-    <!-- Firebase Scripts -->
-    <script type="module">
-        // Firebase configuration and initialization
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { 
-            getFirestore, 
-            collection, 
-            addDoc, 
-            onSnapshot, 
-            query, 
-            orderBy, 
-            serverTimestamp, 
-            deleteDoc, 
-            doc,
-            updateDoc 
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <script>
+        // Инициализационни бази от данни (зареждат се само веднъж)
+        const INITIAL_SERVICES = [
+            { id: 1, name: "Подстригване", price: 20, icon: "fa-cut" },
+            { id: 2, name: "Брада", price: 10, icon: "fa-user-tie" },
+            { id: 3, name: "КОМБО", price: 25, icon: "fa-star" }
+        ];
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCo4eLTJZIsocuxe5Jpp4HlJV9QCrdfO8I",
-            authDomain: "barberpro-49b26.firebaseapp.com",
-            projectId: "barberpro-49b26",
-            storageBucket: "barberpro-49b26.firebasestorage.app",
-            messagingSenderId: "390589993920",
-            appId: "1:390589993920:web:6c5393d1ebba06222c6e25"
-        };
+        const INITIAL_STAFF = [
+            { name: "Администратор", pin: "0000", role: "admin" },
+            { name: "Бръснар Алекс", pin: "1111", role: "operator" }
+        ];
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const INITIAL_BOOKINGS = [
+            { id: 501, client: "Георги Димитров", date: "2026-05-25", time: "14:30", service: "Подстригване", price: 20 },
+            { id: 502, client: "Христо Петров", date: "2026-05-25", time: "15:15", service: "КОМБО", price: 25 }
+        ];
 
-        // Application State
-        class AppState {
-            constructor() {
-                this.currentUser = null;
-                this.currentBill = [];
-                this.activeBooking = null;
-                this.data = this.loadLocalData();
-                this.init();
-            }
+        const App = {
+            state: {
+                user: null,
+                bill: [],
+                activeBooking: null
+            },
+
+            storage: {
+                read: (key, fallback) => JSON.parse(localStorage.getItem(key)) || fallback,
+                write: (key, data) => localStorage.setItem(key, JSON.stringify(data))
+            },
 
             init() {
-                this.setupEventListeners();
-                this.setupTabs();
-                this.setupForms();
-                this.renderServices();
-                this.renderSchedule();
-                this.updateServiceDropdown();
-                this.setupRealtimeStats();
-            }
+                if(!localStorage.getItem("erp_services")) this.storage.write("erp_services", INITIAL_SERVICES);
+                if(!localStorage.getItem("erp_staff")) this.storage.write("erp_staff", INITIAL_STAFF);
+                if(!localStorage.getItem("erp_bookings")) this.storage.write("erp_bookings", INITIAL_BOOKINGS);
+                if(!localStorage.getItem("erp_sales")) this.storage.write("erp_sales", []);
 
-            loadLocalData() {
-                return JSON.parse(localStorage.getItem('barber_pro_data')) || {
-                    staff: [
-                        { id: 'admin-1', name: "Админ", pin: "0000", role: "admin" }
-                    ],
-                    services: [
-                        { id: 'service-1', name: "Подстригване", price: 20, duration: 30, category: "hair" },
-                        { id: 'service-2', name: "Брада", price: 10, duration: 20, category: "beard" }
-                    ],
-                    bookings: []
-                };
-            }
+                this.ui.renderAll();
+            },
 
-            saveLocalData() {
-                localStorage.setItem('barber_pro_data', JSON.stringify(this.data));
-            }
+            auth: {
+                login() {
+                    const pin = document.getElementById("pinInput").value;
+                    const workers = App.storage.read("erp_staff", []);
+                    const foundWorker = workers.find(w => w.pin === pin);
 
-            setupEventListeners() {
-                // Login form
-                document.getElementById('loginForm').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.login();
-                });
-
-                // Keyboard shortcuts
-                document.addEventListener('keydown', (e) => {
-                    if (e.ctrlKey || e.metaKey) {
-                        switch(e.key) {
-                            case 'Enter':
-                                e.preventDefault();
-                                if (this.currentBill.length > 0) {
-                                    this.finalizePayment();
-                                }
-                                break;
-                            case 'Delete':
-                                e.preventDefault();
-                                this.clearBill();
-                                break;
-                        }
-                    }
-                });
-            }
-
-            setupTabs() {
-                document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
-                    item.addEventListener('click', () => {
-                        const tabId = item.dataset.tab;
-                        this.showTab(tabId);
+                    if(foundWorker) {
+                        App.state.user = foundWorker;
+                        document.getElementById("currentWorkerDisplay").innerText = `Оператор: ${foundWorker.name}`;
                         
-                        // Update active state
-                        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-                        item.classList.add('active');
-                    });
-                });
-            }
-
-            setupForms() {
-                // Booking form
-                document.getElementById('bookingForm').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.addBooking();
-                });
-
-                // Staff form
-                document.getElementById('staffForm').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.addStaff();
-                });
-
-                // Service form
-                document.getElementById('serviceForm').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.addService();
-                });
-            }
-
-            // Authentication
-            login() {
-                const pin = document.getElementById('pinInput').value;
-                const user = this.data.staff.find(u => u.pin === pin);
-                
-                if (user) {
-                    this.currentUser = user;
-                    document.getElementById('loginScreen').classList.add('hidden');
-                    
-                    if (user.role === 'admin') {
-                        document.getElementById('adminMenu').classList.remove('hidden');
-                    }
-                    
-                    this.showNotification(`Добре дошли, ${user.name}!`, 'success');
-                } else {
-                    this.showNotification('Грешен ПИН!', 'error');
-                    document.getElementById('pinInput').value = '';
-                    document.getElementById('pinInput').focus();
-                }
-            }
-
-            logout() {
-                this.currentUser = null;
-                this.currentBill = [];
-                this.activeBooking = null;
-                location.reload();
-            }
-
-            // Tab Management
-            showTab(tabId) {
-                document.querySelectorAll('.tab-content').forEach(tab => {
-                    tab.classList.add('hidden');
-                });
-                
-                const targetTab = document.getElementById(tabId);
-                if (targetTab) {
-                    targetTab.classList.remove('hidden');
-                    
-                    // Load tab-specific data
-                    switch(tabId) {
-                        case 'tab-stats':
-                            this.renderStats();
-                            break;
-                        case 'tab-staff':
-                            this.renderStaff();
-                            break;
-                        case 'tab-services':
-                            this.renderServicesTable();
-                            break;
-                    }
-                }
-            }
-
-            // Services Management
-            renderServices() {
-                const container = document.getElementById('servicesGrid');
-                container.innerHTML = this.data.services.map(service => `
-                    <div class="service-card" onclick="app.addServiceToBill('${service.id}')">
-                        <i class="service-icon fas fa-cut"></i>
-                        <div class="service-name">${service.name}</div>
-                        <div class="service-price">${service.price.toFixed(2)} лв.</div>
-                    </div>
-                `).join('');
-            }
-
-            addServiceToBill(serviceId) {
-                const service = this.data.services.find(s => s.id === serviceId);
-                if (service) {
-                    this.currentBill.push({
-                        id: Date.now().toString(),
-                        serviceId: service.id,
-                        name: service.name,
-                        price: service.price,
-                        duration: service.duration
-                    });
-                    this.updateBillUI();
-                    this.showNotification(`${service.name} добавен към сметката`, 'success');
-                }
-            }
-
-            // Bill Management
-            updateBillUI() {
-                const container = document.getElementById('billItems');
-                const total = this.currentBill.reduce((sum, item) => sum + item.price, 0);
-                
-                if (this.currentBill.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center text-muted" style="padding: 40px;">
-                            <i class="fas fa-shopping-cart" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
-                            <p>Няма добавени услуги</p>
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = this.currentBill.map((item, index) => `
-                        <div class="bill-item">
-                            <div class="bill-item-name">${item.name}</div>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <span class="bill-item-price">${item.price.toFixed(2)} лв.</span>
-                                <i class="fas fa-trash bill-item-remove" onclick="app.removeBillItem(${index})"></i>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-                
-                document.getElementById('totalPrice').textContent = total.toFixed(2);
-                document.getElementById('finalizeBtn').disabled = this.currentBill.length === 0;
-            }
-
-            removeBillItem(index) {
-                const removed = this.currentBill.splice(index, 1)[0];
-                this.updateBillUI();
-                this.showNotification(`${removed.name} премахнат от сметката`, 'info');
-            }
-
-            clearBill() {
-                if (this.currentBill.length > 0) {
-                    this.currentBill = [];
-                    this.activeBooking = null;
-                    this.updateBillUI();
-                    this.hideActiveBookingInfo();
-                    this.showNotification('Сметката е изчистена', 'info');
-                }
-            }
-
-            // Booking Management
-            renderSchedule() {
-                const container = document.getElementById('scheduleList');
-                const today = new Date().toISOString().split('T')[0];
-                const todayBookings = this.data.bookings.filter(b => b.date === today);
-                
-                todayBookings.sort((a, b) => a.time.localeCompare(b.time));
-                
-                if (todayBookings.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center text-muted" style="padding: 40px;">
-                            <i class="fas fa-calendar-times" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
-                            <p>Няма резервации за днес</p>
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = todayBookings.map(booking => `
-                        <div class="booking-item" onclick="app.selectBooking('${booking.id}')">
-                            <div>
-                                <div class="booking-time">${booking.time}</div>
-                                <div class="booking-client">${booking.client}</div>
-                                ${booking.phone ? `<div class="booking-service"><i class="fas fa-phone"></i> ${booking.phone}</div>` : ''}
-                            </div>
-                            <div class="text-right">
-                                <div class="booking-service">${booking.service}</div>
-                                <div style="color: var(--success); font-weight: 600;">${booking.price.toFixed(2)} лв.</div>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-                
-                document.getElementById('scheduleCount').textContent = todayBookings.length;
-            }
-
-            selectBooking(bookingId) {
-                const booking = this.data.bookings.find(b => b.id === bookingId);
-                if (booking) {
-                    this.activeBooking = booking;
-                    this.showActiveBookingInfo(booking);
-                    
-                    // Add to bill
-                    this.currentBill = [{
-                        id: 'booking-' + Date.now(),
-                        serviceId: booking.serviceId,
-                        name: booking.service,
-                        price: booking.price,
-                        isFromBooking: true
-                    }];
-                    this.updateBillUI();
-                    
-                    // Highlight selected booking
-                    document.querySelectorAll('.booking-item').forEach(item => {
-                        item.classList.remove('active');
-                    });
-                    event.currentTarget.classList.add('active');
-                }
-            }
-
-            showActiveBookingInfo(booking) {
-                document.getElementById('activeBookingInfo').style.display = 'block';
-                document.getElementById('activeBookingCode').textContent = booking.code;
-                document.getElementById('activeBookingClient').textContent = booking.client;
-            }
-
-            hideActiveBookingInfo() {
-                document.getElementById('activeBookingInfo').style.display = 'none';
-                document.querySelectorAll('.booking-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-            }
-
-            addBooking() {
-                const form = document.getElementById('bookingForm');
-                const formData = new FormData(form);
-                
-                const booking = {
-                    id: 'booking-' + Date.now(),
-                    code: 'B' + Date.now().toString().slice(-4),
-                    client: document.getElementById('bookClient').value,
-                    phone: document.getElementById('bookPhone').value,
-                    date: document.getElementById('bookDate').value,
-                    time: document.getElementById('bookTime').value,
-                    serviceId: this.getServiceIdByName(document.getElementById('bookService').value),
-                    service: document.getElementById('bookService').value,
-                    price: this.getServicePriceByName(document.getElementById('bookService').value),
-                    notes: document.getElementById('bookNotes').value,
-                    status: 'confirmed',
-                    createdAt: new Date().toISOString(),
-                    createdBy: this.currentUser.name
-                };
-                
-                this.data.bookings.push(booking);
-                this.saveLocalData();
-                this.renderSchedule();
-                
-                form.reset();
-                this.showNotification('Резервацията е създадена успешно!', 'success');
-                this.showTab('tab-pos');
-            }
-
-            // Payment Processing
-            async finalizePayment() {
-                if (this.currentBill.length === 0) return;
-                
-                const total = this.currentBill.reduce((sum, item) => sum + item.price, 0);
-                
-                try {
-                    // Save to cloud
-                    await addDoc(collection(db, "sales"), {
-                        operator: this.currentUser.name,
-                        operatorId: this.currentUser.id,
-                        items: this.currentBill,
-                        total: total,
-                        bookingId: this.activeBooking ? this.activeBooking.id : null,
-                        timestamp: serverTimestamp(),
-                        date: new Date().toISOString().split('T')[0],
-                        time: new Date().toTimeString().split(' ')[0]
-                    });
-                    
-                    // If from booking, update booking status
-                    if (this.activeBooking) {
-                        const bookingIndex = this.data.bookings.findIndex(b => b.id === this.activeBooking.id);
-                        if (bookingIndex !== -1) {
-                            this.data.bookings[bookingIndex].status = 'completed';
-                            this.data.bookings[bookingIndex].completedAt = new Date().toISOString();
-                            this.data.bookings[bookingIndex].completedBy = this.currentUser.name;
+                        if(foundWorker.role === 'admin') {
+                            document.getElementById("adminMenu").classList.remove("hidden");
+                        } else {
+                            document.getElementById("adminMenu").classList.add("hidden");
                         }
+
+                        document.getElementById("loginScreen").classList.add("hidden");
+                        document.getElementById("mainApp").classList.remove("hidden");
+                        document.getElementById("pinInput").value = "";
+                        App.pos.clearBill();
+                    } else {
+                        alert("Невалиден ПИН код. Опитайте отново.");
                     }
+                },
+                logout() {
+                    App.state.user = null;
+                    document.getElementById("mainApp").classList.add("hidden");
+                    document.getElementById("loginScreen").classList.remove("hidden");
+                }
+            },
+
+            ui: {
+                switchTab(tabId, element) {
+                    document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden"));
+                    document.getElementById(tabId).classList.remove("hidden");
                     
-                    this.saveLocalData();
-                    
-                    // Print receipt
-                    this.printReceipt();
-                    
-                    // Reset state
-                    this.currentBill = [];
-                    this.activeBooking = null;
-                    this.updateBillUI();
-                    this.hideActiveBookingInfo();
+                    document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
+                    if(element) element.classList.add("active");
+                },
+
+                renderAll() {
+                    this.renderServicesGridAndTable();
                     this.renderSchedule();
-                    
-                    this.showNotification('Плащането е обработено успешно!', 'success');
-                    
-                } catch (error) {
-                    console.error('Error processing payment:', error);
-                    this.showNotification('Грешка при обработка на плащането!', 'error');
+                    this.renderStaff();
+                    this.renderSalesLogs();
+                    App.pos.updateBillUI();
+                },
+
+                renderServicesGridAndTable() {
+                    const services = App.storage.read("erp_services", []);
+                    const grid = document.getElementById("servicesGrid");
+                    const table = document.getElementById("servicesTableBody");
+                    const dropdown = document.getElementById("bookService");
+
+                    grid.innerHTML = "";
+                    table.innerHTML = "";
+                    dropdown.innerHTML = `<option value="">Изберете услуга</option>`;
+
+                    services.forEach(s => {
+                        const iconClass = s.icon || "fa-cut";
+                        // Grid layout in POS view
+                        grid.innerHTML += `
+                            <div class="service-card" onclick="App.pos.add('${s.name}', ${s.price})">
+                                <i class="fas ${iconClass} service-icon"></i>
+                                <span class="service-name">${s.name}</span>
+                                <span class="service-price">${s.price.toFixed(2)} лв</span>
+                            </div>
+                        `;
+                        // Settings view table
+                        table.innerHTML += `
+                            <tr>
+                                <td>${s.name}</td>
+                                <td>${s.price.toFixed(2)} лв.</td>
+                                <td>
+                                    <button class="btn btn-danger" style="padding: 6px 12px; font-size:13px;" onclick="App.db.deleteService(${s.id})">Изтрий</button>
+                                </td>
+                            </tr>
+                        `;
+                        // Booking selectors
+                        dropdown.innerHTML += `<option value="${s.name}" data-price="${s.price}">${s.name} (${s.price} лв)</option>`;
+                    });
+                },
+
+                renderSchedule() {
+                    const bookings = App.storage.read("erp_bookings", []);
+                    const container = document.getElementById("scheduleList");
+                    document.getElementById("scheduleCount").innerText = bookings.length;
+
+                    container.innerHTML = "";
+                    if(bookings.length === 0) {
+                        container.innerHTML = `<p class="text-center" style="color:var(--text-light); padding:20px;">Няма активни резервации за днес.</p>`;
+                        return;
+                    }
+
+                    bookings.forEach(b => {
+                        const activeClass = App.state.activeBooking && App.state.activeBooking.id === b.id ? 'active' : '';
+                        container.innerHTML += `
+                            <div class="booking-item ${activeClass}" onclick="App.pos.bindBooking(${b.id}, '${b.client}', '${b.service}', ${b.price})">
+                                <div>
+                                    <div class="booking-time">${b.time}</div>
+                                    <div class="booking-client">${b.client}</div>
+                                    <div class="booking-service">${b.service}</div>
+                                </div>
+                                <div>
+                                    <span class="badge" style="background:var(--success);">${b.price.toFixed(2)} лв</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                },
+
+                renderStaff() {
+                    const staff = App.storage.read("erp_staff", []);
+                    const tbody = document.getElementById("staffTableBody");
+                    tbody.innerHTML = "";
+
+                    staff.forEach((worker, index) => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><strong>${worker.name}</strong></td>
+                                <td>${worker.role === 'admin' ? 'Администратор' : 'Оператор'}</td>
+                                <td>
+                                    <button class="btn btn-danger" style="padding: 6px 12px; font-size:13px;" onclick="App.db.deleteStaff(${index})">Премахни</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                },
+
+                renderSalesLogs() {
+                    const sales = App.storage.read("erp_sales", []);
+                    const tbody = document.getElementById("salesTableBody");
+                    tbody.innerHTML = "";
+
+                    sales.forEach(sale => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${sale.timestamp}</td>
+                                <td>${sale.cashier}</td>
+                                <td>${sale.client}</td>
+                                <td>${sale.items.join(", ")}</td>
+                                <td><span class="badge" style="background:#555">${sale.method}</span></td>
+                                <td style="font-weight:700; color:var(--success);">${sale.amount.toFixed(2)} лв.</td>
+                            </tr>
+                        `;
+                    });
                 }
-            }
+            },
 
-            printReceipt() {
-                const total = this.currentBill.reduce((sum, item) => sum + item.price, 0);
-                const now = new Date();
-                
-                document.getElementById('receiptDate').textContent = now.toLocaleDateString('bg-BG') + ' ' + now.toLocaleTimeString('bg-BG');
-                document.getElementById('receiptItems').innerHTML = this.currentBill.map(item => `
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                        <span>${item.name}</span>
-                        <span>${item.price.toFixed(2)} лв.</span>
-                    </div>
-                `).join('');
-                document.getElementById('receiptTotal').textContent = total.toFixed(2) + ' лв.';
-                
-                window.print();
-            }
+            pos: {
+                add(name, price) {
+                    App.state.bill.push({ name, price });
+                    this.updateBillUI();
+                },
 
-            // Stats Management
-            setupRealtimeStats() {
-                const q = query(collection(db, "sales"), orderBy("timestamp", "desc"));
-                onSnapshot(q, (snapshot) => {
-                    this.renderStatsFromSnapshot(snapshot);
-                });
-            }
+                remove(index) {
+                    App.state.bill.splice(index, 1);
+                    this.updateBillUI();
+                },
 
-            renderStatsFromSnapshot(snapshot) {
-                const container = document.getElementById('statsTableContainer');
-                let html = '<table class="data-table"><thead><tr><th>Час</th><th>Оператор</th><th>Услуги</th><th>Сума</th></tr></thead><tbody>';
-                
-                if (snapshot.empty) {
-                    html += '<tr><td colspan="4" class="text-center">Няма продажби за днес</td></tr>';
-                } else {
-                    let total = 0;
-                    snapshot.forEach(doc => {
-                        const sale = doc.data();
-                        const time = sale.timestamp ? new Date(sale.timestamp.seconds * 1000).toLocaleTimeString('bg-BG') : '';
-                        const items = sale.items.map(item => item.name).join(', ');
-                        total += sale.total;
-                        
-                        html += `<tr>
-                            <td>${time}</td>
-                            <td>${sale.operator}</td>
-                            <td>${items}</td>
-                            <td style="font-weight: 600; color: var(--success);">${sale.total.toFixed(2)} лв.</td>
-                        </tr>`;
+                bindBooking(id, client, service, price) {
+                    App.state.activeBooking = { id, client };
+                    App.state.bill = [{ name: service, price: price }];
+                    
+                    document.getElementById("activeBookingCode").innerText = `#${id}`;
+                    document.getElementById("activeBookingClient").innerText = client;
+                    document.getElementById("activeBookingInfo").style.display = "block";
+
+                    this.updateBillUI();
+                    App.ui.renderSchedule();
+                },
+
+                clearBill() {
+                    App.state.bill = [];
+                    App.state.activeBooking = null;
+                    document.getElementById("activeBookingInfo").style.display = "none";
+                    this.updateBillUI();
+                    App.ui.renderSchedule();
+                },
+
+                updateBillUI() {
+                    const container = document.getElementById("billItems");
+                    container.innerHTML = "";
+                    let sum = 0;
+
+                    if(App.state.bill.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center text-muted" style="padding: 40px; color: var(--text-light);">
+                                <i class="fas fa-shopping-cart" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                                <p>Няма добавени услуги</p>
+                            </div>`;
+                        document.getElementById("totalPrice").innerText = "0.00";
+                        return;
+                    }
+
+                    App.state.bill.forEach((item, index) => {
+                        sum += item.price;
+                        container.innerHTML += `
+                            <div class="bill-item">
+                                <span class="bill-item-name">${item.name}</span>
+                                <div>
+                                    <span class="bill-item-price">${item.price.toFixed(2)} лв</span>
+                                    <span class="bill-item-remove" onclick="App.pos.remove(${index})"><i class="fas fa-trash-alt"></i></span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    document.getElementById("totalPrice").innerText = sum.toFixed(2);
+                },
+
+                finalize() {
+                    if(App.state.bill.length === 0) return alert("Касовата количка е празна!");
+
+                    const totalSum = App.state.bill.reduce((acc, current) => acc + current.price, 0);
+                    const method = document.getElementById("paymentMethod").value;
+                    const targetClient = App.state.activeBooking ? App.state.activeBooking.client : "Свободен клиент";
+                    
+                    const record = {
+                        timestamp: new Date().toLocaleString("bg-BG"),
+                        cashier: App.state.user.name,
+                        client: targetClient,
+                        items: App.state.bill.map(i => i.name),
+                        method: method,
+                        amount: totalSum
+                    };
+
+                    // Save transaction log
+                    const allSales = App.storage.read("erp_sales", []);
+                    allSales.push(record);
+                    App.storage.save = App.storage.write; // compatibility link
+                    App.storage.write("erp_sales", allSales);
+
+                    // If linked with calendar booking, remove from list upon completion
+                    if(App.state.activeBooking) {
+                        let activeBookings = App.storage.read("erp_bookings", []);
+                        activeBookings = activeBookings.filter(book => book.id !== App.state.activeBooking.id);
+                        App.storage.write("erp_bookings", activeBookings);
+                    }
+
+                    // Native thermal print wrapper simulation
+                    this.thermalPrintTrigger(record);
+
+                    // Reset terminal
+                    this.clearBill();
+                    App.ui.renderAll();
+                    alert("Продажбата приключи успешно!");
+                },
+
+                thermalPrintTrigger(record) {
+                    const printArea = document.getElementById("printReceipt");
+                    printArea.innerHTML = `
+                        <div style="font-family: monospace; padding: 20px; width: 80mm; color: #000;">
+                            <h2 style="text-align:center; margin-bottom:5px;">BARBER PRO PRO</h2>
+                            <p style="text-align:center; font-size:12px; margin-bottom:15px;">CLOUD POS TERMINAL</p>
+                            <hr style="border-top:1px dashed #000;">
+                            <p>ДАТА: ${record.timestamp}</p>
+                            <p>КАСИЕР: ${record.cashier}</p>
+                            <p>КЛИЕНТ: ${record.client}</p>
+                            <hr style="border-top:1px dashed #000;">
+                            <h3 style="margin: 10px 0;">УСЛУГИ:</h3>
+                            ${App.state.bill.map(i => `<div style="display:flex; justify-content:space-between;"><span>${i.name}</span><span>${i.price.toFixed(2)} лв</span></div>`).join("")}
+                            <hr style="border-top:1px dashed #000;">
+                            <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:bold; margin: 10px 0;">
+                                <span>ОБЩО:</span><span>${record.amount.toFixed(2)} лв</span>
+                            </div>
+                            <p>МЕТОД: ${record.method}</p>
+                            <hr style="border-top:1px dashed #000;">
+                            <p style="text-align:center; margin-top:15px;">Благодарим ви за посещението!</p>
+                        </div>
+                    `;
+                    window.print();
+                }
+            },
+
+            db: {
+                addBooking() {
+                    const name = document.getElementById("bookClient").value.trim();
+                    const date = document.getElementById("bookDate").value;
+                    const time = document.getElementById("bookTime").value;
+                    const select = document.getElementById("bookService");
+                    const serviceName = select.value;
+                    const servicePrice = parseFloat(select.options[select.selectedIndex]?.getAttribute("data-price") || 0);
+
+                    if(!name || !date || !time || !serviceName) return alert("Попълнете всички полета!");
+
+                    const bookings = App.storage.read("erp_bookings", []);
+                    bookings.push({
+                        id: Date.now(),
+                        client: name,
+                        date: date,
+                        time: time,
+                        service: serviceName,
+                        price: servicePrice
                     });
                     
-                    html += `<tr style="background: var(--bg); font-weight: 700;">
-                        <td colspan="3">ОБЩО ЗА ДНЕС:</td>
-                        <td style="color: var(--success);">${total.toFixed(2)} лв.</td>
-                    </tr>`;
-                }
-                
-                html += '</tbody></table>';
-                container.innerHTML = html;
-            }
+                    bookings.sort((a,b) => a.time.localeCompare(b.time));
+                    App.storage.write("erp_bookings", bookings);
 
-            // Staff Management
-            addStaff() {
-                const name = document.getElementById('sName').value;
-                const pin = document.getElementById('sPin').value;
-                const role = document.getElementById('sRole').value;
-                
-                if (this.data.staff.find(s => s.pin === pin)) {
-                    this.showNotification('ПИН вече съществува!', 'error');
-                    return;
-                }
-                
-                const staff = {
-                    id: 'staff-' + Date.now(),
-                    name: name,
-                    pin: pin,
-                    role: role,
-                    createdAt: new Date().toISOString()
-                };
-                
-                this.data.staff.push(staff);
-                this.saveLocalData();
-                this.renderStaff();
-                
-                document.getElementById('staffForm').reset();
-                this.showNotification('Служителят е добавен успешно!', 'success');
-            }
+                    // Reset fields
+                    document.getElementById("bookClient").value = "";
+                    document.getElementById("bookDate").value = "";
+                    document.getElementById("bookTime").value = "";
+                    select.value = "";
 
-            renderStaff() {
-                const tbody = document.querySelector('#staffTable tbody');
-                tbody.innerHTML = this.data.staff.map(staff => `
-                    <tr>
-                        <td>${staff.name}</td>
-                        <td>****</td>
-                        <td>${staff.role === 'admin' ? 'Админ' : 'Оператор'}</td>
-                        <td>
-                            <button class="btn btn-danger" onclick="app.removeStaff('${staff.id}')" style="padding: 4px 8px; font-size: 12px;">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
+                    App.ui.renderAll();
+                    App.ui.switchTab("tab-pos");
+                },
 
-            removeStaff(staffId) {
-                if (confirm('Сигурни ли сте, че искате да изтриете този служител?')) {
-                    this.data.staff = this.data.staff.filter(s => s.id !== staffId);
-                    this.saveLocalData();
-                    this.renderStaff();
-                    this.showNotification('Служителят е изтрит успешно!', 'success');
-                }
-            }
+                addStaff() {
+                    const name = document.getElementById("sName").value.trim();
+                    const pin = document.getElementById("sPin").value.trim();
+                    const role = document.getElementById("sRole").value;
 
-            // Service Management
-            addService() {
-                const name = document.getElementById('svName').value;
-                const price = parseFloat(document.getElementById('svPrice').value);
-                const duration = parseInt(document.getElementById('svDuration').value) || 30;
-                const category = document.getElementById('svCategory').value;
-                
-                const service = {
-                    id: 'service-' + Date.now(),
-                    name: name,
-                    price: price,
-                    duration: duration,
-                    category: category,
-                    createdAt: new Date().toISOString()
-                };
-                
-                this.data.services.push(service);
-                this.saveLocalData();
-                this.renderServices();
-                this.renderServicesTable();
-                this.updateServiceDropdown();
-                
-                document.getElementById('serviceForm').reset();
-                this.showNotification('Услугата е добавена успешно!', 'success');
-            }
+                    if(!name || pin.length !== 4) return alert("Въведете валидно име и ПИН от 4 цифри!");
 
-            renderServicesTable() {
-                const tbody = document.querySelector('#servicesTable tbody');
-                tbody.innerHTML = this.data.services.map(service => `
-                    <tr>
-                        <td>${service.name}</td>
-                        <td>${service.price.toFixed(2)} лв.</td>
-                        <td>${service.duration} мин.</td>
-                        <td>${this.getCategoryName(service.category)}</td>
-                        <td>
-                            <button class="btn btn-danger" onclick="app.removeService('${service.id}')" style="padding: 4px 8px; font-size: 12px;">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
+                    const staff = App.storage.read("erp_staff", []);
+                    staff.push({ name, pin, role });
+                    App.storage.write("erp_staff", staff);
 
-            removeService(serviceId) {
-                if (confirm('Сигурни ли сте, че искате да изтриете тази услуга?')) {
-                    this.data.services = this.data.services.filter(s => s.id !== serviceId);
-                    this.saveLocalData();
-                    this.renderServices();
-                    this.renderServicesTable();
-                    this.updateServiceDropdown();
-                    this.showNotification('Услугата е изтрита успешно!', 'success');
+                    document.getElementById("sName").value = "";
+                    document.getElementById("sPin").value = "";
+
+                    App.ui.renderAll();
+                },
+
+                deleteStaff(index) {
+                    const staff = App.storage.read("erp_staff", []);
+                    if(staff[index].pin === App.state.user.pin) return alert("Не можете да изтриете себе си в момента!");
+                    
+                    staff.splice(index, 1);
+                    App.storage.write("erp_staff", staff);
+                    App.ui.renderAll();
+                },
+
+                addService() {
+                    const name = document.getElementById("newServiceName").value.trim();
+                    const price = parseFloat(document.getElementById("newServicePrice").value);
+
+                    if(!name || isNaN(price)) return alert("Въведете коректна услуга и цена!");
+
+                    const services = App.storage.read("erp_services", []);
+                    services.push({
+                        id: Date.now(),
+                        name: name,
+                        price: price,
+                        icon: "fa-cut"
+                    });
+
+                    App.storage.write("erp_services", services);
+                    document.getElementById("newServiceName").value = "";
+                    document.getElementById("newServicePrice").value = "";
+                    
+                    App.ui.renderAll();
+                },
+
+                deleteService(id) {
+                    let services = App.storage.read("erp_services", []);
+                    services = services.filter(s => s.id !== id);
+                    App.storage.write("erp_services", services);
+                    App.ui.renderAll();
                 }
             }
+        };
 
-            updateServiceDropdown() {
-                const select = document.getElementById('bookService');
-                select.innerHTML = '<option value="">Изберете услуга</option>' +
-                    this.data.services.map(service => `<option value="${service.name}">${service.name} - ${service.price.toFixed(2)} лв.</option>`).join('');
-            }
-
-            // Utility Methods
-            getServiceIdByName(name) {
-                const service = this.data.services.find(s => s.name === name);
-                return service ? service.id : null;
-            }
-
-            getServicePriceByName(name) {
-                const service = this.data.services.find(s => s.name === name);
-                return service ? service.price : 0;
-            }
-
-            getCategoryName(category) {
-                const categories = {
-                    hair: 'Коса',
-                    beard: 'Брада',
-                    combo: 'Комбо',
-                    other: 'Други'
-                };
-                return categories[category] || category;
-            }
-
-            showNotification(message, type = 'info') {
-                // Create notification element
-                const notification = document.createElement('div');
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: ${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : 'var(--accent)'};
-                    color: white;
-                    padding: 16px 24px;
-                    border-radius: 8px;
-                    box-shadow: var(--shadow);
-                    z-index: 10000;
-                    font-weight: 500;
-                    transform: translateX(400px);
-                    transition: transform 0.3s ease;
-                `;
-                notification.innerHTML = `
-                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}-circle" style="margin-right: 8px;"></i>
-                    ${message}
-                `;
-                
-                document.body.appendChild(notification);
-                
-                // Animate in
-                setTimeout(() => {
-                    notification.style.transform = 'translateX(0)';
-                }, 100);
-                
-                // Remove after 4 seconds
-                setTimeout(() => {
-                    notification.style.transform = 'translateX(400px)';
-                    setTimeout(() => {
-                        document.body.removeChild(notification);
-                    }, 300);
-                }, 4000);
-            }
-
-            // Initialize app
-            static init() {
-                window.app = new AppState();
-            }
-        }
-
-        // Initialize the application
-        AppState.init();
-
-        // Make functions global for HTML onclick handlers
-        window.logout = () => window.app.logout();
-        window.showTab = (tabId) => window.app.showTab(tabId);
-        window.addServiceToBill = (serviceId) => window.app.addServiceToBill(serviceId);
-        window.removeBillItem = (index) => window.app.removeBillItem(index);
-        window.clearBill = () => window.app.clearBill();
-        window.selectBooking = (bookingId) => window.app.selectBooking(bookingId);
-        window.finalizePayment = () => window.app.finalizePayment();
-        window.removeStaff = (staffId) => window.app.removeStaff(staffId);
-        window.removeService = (serviceId) => window.app.removeService(serviceId);
-        window.refreshStats = () => window.app.renderStats();
-
-        // Set today's date as default for booking
-        document.getElementById('bookDate').valueAsDate = new Date();
+        window.onload = () => App.init();
     </script>
 </body>
 </html>
